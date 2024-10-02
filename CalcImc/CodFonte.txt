@@ -1,0 +1,155 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MaterialApp(
+    home: Home(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
+
+class Home extends StatefulWidget {
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  TextEditingController pesoController = TextEditingController();
+  TextEditingController alturaController = TextEditingController();
+  String _resultado = "Informe seus dados";
+
+  void _reset() {
+    pesoController.text = "";
+    alturaController.text = "";
+
+    setState(() {
+      _resultado = "Informe seus dados";
+      _formKey = GlobalKey<FormState>();
+    });
+  }
+
+  void _calcularIMC() {
+    setState(() {
+      double peso = double.parse(pesoController.text.replaceAll(',', '.'));
+      double altura = double.parse(alturaController.text.replaceAll(',', '.'));
+      double imc = peso / (altura * altura);
+
+      if (imc < 18.5) {
+        _resultado = "Abaixo do peso (IMC: ${imc.toStringAsPrecision(3)})";
+      } else if (imc >= 18.5 && imc < 24.9) {
+        _resultado = "Peso normal (IMC: ${imc.toStringAsPrecision(3)})";
+      } else if (imc >= 25 && imc < 29.9) {
+        _resultado = "Sobrepeso (IMC: ${imc.toStringAsPrecision(3)})";
+      } else {
+        _resultado = "Obesidade (IMC: ${imc.toStringAsPrecision(3)})";
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Calculadora de IMC",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 28.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.teal[400],
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.refresh, color: Colors.white),
+              onPressed: () {
+                _reset();
+              })
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(20.0, 0, 20.0, 0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              SizedBox(height: 40.0),
+              TextFormField(
+                controller: pesoController,
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Informe o seu peso (Kg)";
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  labelText: "Peso (Kg)",
+                  labelStyle: TextStyle(color: Colors.teal[400]),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                ),
+                style: TextStyle(color: Colors.teal[600], fontSize: 24.0),
+              ),
+              SizedBox(height: 20.0),
+              TextFormField(
+                controller: alturaController,
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Informe a sua altura (m)";
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  labelText: "Altura (m)",
+                  labelStyle: TextStyle(color: Colors.teal[400]),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                ),
+                style: TextStyle(color: Colors.teal[600], fontSize: 24.0),
+              ),
+              SizedBox(height: 30.0),
+              Container(
+                height: 60.0,
+                child: ElevatedButton(
+                  child: Text(
+                    "Calcular",
+                    style: TextStyle(color: Colors.white, fontSize: 24.0),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal[400], 
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                  ),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _calcularIMC();
+                    }
+                  },
+                ),
+              ),
+              SizedBox(height: 20.0),
+              Text(
+                _resultado,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.teal[600],
+                    fontSize: 28.0,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ),
+      backgroundColor: Colors.grey[200],
+    );
+  }
+}
